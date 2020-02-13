@@ -1,182 +1,99 @@
-// LRS.cpp : Defines the entry point for the application.
-//
-
+#include <Windows.h>
 #include "stdafx.h"
-#include "LRS.h"
+#include <tchar.h>
+//#define RGB(r, g, b) ((COLORREF)(((BYTE)(r) | ((WORD)(g) << 8)) | ((DWORD)(BYTE)(b)) << 16)))
 
-#define MAX_LOADSTRING 100
+PAINTSTRUCT ps;
+HDC hdc;
 
-// Global Variables:
-HINSTANCE hInst;								// current instance
-TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
-TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-// Forward declarations of functions included in this code module:
-ATOM				MyRegisterClass(HINSTANCE hInstance);
-BOOL				InitInstance(HINSTANCE, int);
-LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
+TCHAR WinName[] = _T("MainFrame");
 
-int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPTSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+int WINAPI _tWinMain(HINSTANCE This,		 // Дескриптор текущего приложения 
+
+	HINSTANCE Prev, 	// В современных системах всегда 0 
+	LPTSTR cmd, 		// Командная строка 
+	int mode) 		// Режим отображения окна
 {
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
+	HWND hWnd;		// Дескриптор главного окна программы 
+	MSG msg; 		// Структура для хранения сообщения 
+	WNDCLASS wc; 	// Класс окна
+	// Определение класса окна 
+	wc.hInstance = This;
+	wc.lpszClassName = WinName; 				// Имя класса окна 
+	wc.lpfnWndProc = WndProc; 					// Функция окна 
+	wc.style = CS_HREDRAW | CS_VREDRAW; 			// Стиль окна 
+	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION); 		// Стандартная иконка 
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW); 		// Стандартный курсор 
+	wc.lpszMenuName = NULL; 					// Нет меню 
+	wc.cbClsExtra = 0; 						// Нет дополнительных данных класса 
+	wc.cbWndExtra = 0; 						// Нет дополнительных данных окна 
+	wc.hbrBackground = (HBRUSH)CreateSolidBrush(RGB(255, 229, 28));
+	//(COLOR_WINDOW + 13); 	// Заполнение окна белым цветом 
 
- 	// TODO: Place code here.
-	MSG msg;
-	HACCEL hAccelTable;
+	
+	
 
-	// Initialize global strings
-	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_LRS, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
 
-	// Perform application initialization:
-	if (!InitInstance (hInstance, nCmdShow))
-	{
-		return FALSE;
-	}
+	// Регистрация класса окна
+	if (!RegisterClass(&wc)) return 0;
 
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LRS));
+	// Создание окна 
+	hWnd = CreateWindow(WinName,			// Имя класса окна 
+		_T("Каркас Windows-приложения"), 		// Заголовок окна 
+		WS_OVERLAPPEDWINDOW, 		// Стиль окна 
+		CW_USEDEFAULT,				// x 
+		CW_USEDEFAULT, 				// y	 Размеры окна 
+		CW_USEDEFAULT, 				// width 
+		CW_USEDEFAULT, 				// Height 
+		HWND_DESKTOP, 				// Дескриптор родительского окна 
+		NULL, 						// Нет меню 
+		This, 						// Дескриптор приложения 
+		NULL); 					// Дополнительной информации нет 
 
-	// Main message loop:
+	ShowWindow(hWnd, mode); 				// Показать окно
+	// Цикл обработки сообщений 
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
-
-	return (int) msg.wParam;
-}
-
-
-
-//
-//  FUNCTION: MyRegisterClass()
-//
-//  PURPOSE: Registers the window class.
-//
-ATOM MyRegisterClass(HINSTANCE hInstance)
-{
-	WNDCLASSEX wcex;
-
-	wcex.cbSize = sizeof(WNDCLASSEX);
-
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc	= WndProc;
-	wcex.cbClsExtra		= 0;
-	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LRS));
-	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_LRS);
-	wcex.lpszClassName	= szWindowClass;
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
-	return RegisterClassEx(&wcex);
-}
-
-//
-//   FUNCTION: InitInstance(HINSTANCE, int)
-//
-//   PURPOSE: Saves instance handle and creates main window
-//
-//   COMMENTS:
-//
-//        In this function, we save the instance handle in a global variable and
-//        create and display the main program window.
-//
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-   HWND hWnd;
-
-   hInst = hInstance; // Store instance handle in our global variable
-
-   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
-
-   if (!hWnd)
-   {
-      return FALSE;
-   }
-
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-
-   return TRUE;
-}
-
-//
-//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  PURPOSE:  Processes messages for the main window.
-//
-//  WM_COMMAND	- process the application menu
-//  WM_PAINT	- Paint the main window
-//  WM_DESTROY	- post a quit message and return
-//
-//
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	int wmId, wmEvent;
-	PAINTSTRUCT ps;
-	HDC hdc;
-
-	switch (message)
-	{
-	case WM_COMMAND:
-		wmId    = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
-		// Parse the menu selections:
-		switch (wmId)
-		{
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-			break;
-		case IDM_EXIT:
-			DestroyWindow(hWnd);
-			break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-		break;
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		// TODO: Add any drawing code here...
-		EndPaint(hWnd, &ps);
-		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		TranslateMessage(&msg); 		// Функция трансляции кодов нажатой клавиши 
+		DispatchMessage(&msg); 		// Посылает сообщение функции WndProc() 
 	}
 	return 0;
 }
 
-// Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	UNREFERENCED_PARAMETER(lParam);
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		return (INT_PTR)TRUE;
+// Оконная функция вызывается операционной системой
+// и получает сообщения из очереди для данного приложения
 
-	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{
-			EndDialog(hDlg, LOWORD(wParam));
-			return (INT_PTR)TRUE;
-		}
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)		 // Обработчик сообщений
+	{
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break; 			// Завершение программы 
+	case WM_PAINT:
+		
 		break;
+	case WM_LBUTTONDOWN:
+		hdc = BeginPaint(hWnd, &ps);
+
+		HPEN hPenOld;
+		HPEN hEllipsePen;
+		COLORREF qEllipseColor;
+		qEllipseColor = RGB(41, 255, 201);
+		hEllipsePen = CreatePen(PS_SOLID, 3, qEllipseColor);
+		hPenOld = (HPEN)SelectObject(hdc, hEllipsePen);
+
+		Arc(hdc, 100, 100, 350, 250, 0, 0, 0, 0);
+
+		SelectObject(hdc, hPenOld);
+		DeleteObject(hEllipsePen);
+
+		EndPaint(hWnd, &ps);
+		break;
+	default: 			// Обработка сообщения по умолчанию 
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
-	return (INT_PTR)FALSE;
+	return 0;
 }
