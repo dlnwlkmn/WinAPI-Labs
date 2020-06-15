@@ -1,0 +1,4 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(467,5): warning MSB8028: промежуточный каталог (Debug\) содержит файлы, которые используются совместно с другим проектом (lab4.vcxproj).  Это может привести к ошибкам очистки и перестроения.
+  lab4.cpp
+C:\Users\lesh7\OneDrive\Рабочий стол\Labs\WinLR\WinLR4\lab4.cpp(111,14): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+  lab4.vcxproj -> C:\Users\lesh7\OneDrive\Рабочий стол\Labs\WinLR\Debug\WinLR4.exe

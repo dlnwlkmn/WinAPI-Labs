@@ -1,282 +1,286 @@
-#include <Windows.h>
-#include <iostream>
+п»ї// lab4.cpp : РћРїСЂРµРґРµР»СЏРµС‚ С‚РѕС‡РєСѓ РІС…РѕРґР° РґР»СЏ РїСЂРёР»РѕР¶РµРЅРёСЏ.
+//
+
+#include "framework.h"
+#include "lab4.h"
 #include <fstream>
-#include <string>
+#include <iostream>
 #include <vector>
-#include <map>
-#include <tchar.h>
-#include <process.h>
+#include <time.h>
+
+using namespace std;
 
 #define MAX_LOADSTRING 100
-#define PATH L"C:\\Users\\enjoy\\OneDrive\\Рабочий стол\\4 сем\\Windows\\WinApi\\Test\\Lab4\\test.txt"
 
-HINSTANCE hInst;
-LRESULT CALLBACK WndProc(HWND hWnd, // дескриптор окошка
-	UINT, // сообщение, посылаемое ОС
-	WPARAM, // параметры
-	LPARAM); // сообщений, для последующего обращения
+// Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ:
+HINSTANCE hInst;                                // С‚РµРєСѓС‰РёР№ СЌРєР·РµРјРїР»СЏСЂ
+WCHAR szTitle[MAX_LOADSTRING];                  // РўРµРєСЃС‚ СЃС‚СЂРѕРєРё Р·Р°РіРѕР»РѕРІРєР°
+WCHAR szWindowClass[MAX_LOADSTRING];            // РёРјСЏ РєР»Р°СЃСЃР° РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°
 
-TCHAR WinName[] = _T("Lab4");
+int R = 100, G = 100, B = 100;
 
-int WINAPI _tWinMain(HINSTANCE This,		 // Дескриптор текущего приложения 
-	HINSTANCE Prev, 	// В современных системах всегда 0 
-	LPTSTR cmd, 		// Командная строка 
-	int mode) 		// Режим отображения окна
+HBRUSH color_of_window = CreateSolidBrush(RGB(R, G, B)); // Р¦РІРµС‚ РѕРєРЅР°
+
+// РћС‚РїСЂР°РІРёС‚СЊ РѕР±СЉСЏРІР»РµРЅРёСЏ С„СѓРЅРєС†РёР№, РІРєР»СЋС‡РµРЅРЅС‹С… РІ СЌС‚РѕС‚ РјРѕРґСѓР»СЊ РєРѕРґР°:
+ATOM                MyRegisterClass(HINSTANCE hInstance);
+BOOL                InitInstance(HINSTANCE, int);
+LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
+                     _In_opt_ HINSTANCE hPrevInstance,
+                     _In_ LPWSTR    lpCmdLine,
+                     _In_ int       nCmdShow)
 {
-	HWND hWnd;		// Дескриптор главного окна программы, где хранится информация о нашем окне, указатель на определенную область памяти в ядре
-	MSG msg; 		// Структура для хранения сообщения 
-	WNDCLASS wc; 	// струкутра отвечает за характеристики окна
-	wc.hInstance = This;
-	wc.lpszClassName = WinName; 				// Имя класса окна 
-	wc.lpfnWndProc = WndProc; 					// Функция окна 
-	wc.style = CS_HREDRAW | CS_VREDRAW; 			// Стиль окна 
-	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION); 		// Стандартная иконка 
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW); 		// Стандартный курсор 
-	wc.lpszMenuName = NULL; 					// Нет меню 
-	wc.cbClsExtra = 0; 						// Нет дополнительных данных класса 
-	wc.cbWndExtra = 0; 						// Нет дополнительных данных окна 
-	wc.hbrBackground = CreateSolidBrush(RGB(38, 201, 255));// Заполнение окна цветом
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
 
+    // TODO: Р Р°Р·РјРµСЃС‚РёС‚Рµ РєРѕРґ Р·РґРµСЃСЊ.
 
-	// Регистрация класса окна
-	if (!RegisterClass(&wc)) return 0;
-	hInst = This; // Сохранить маркер экземпляра в глобальной переменной
-	// Создание окна 
-	hWnd = CreateWindow(WinName,			// Имя класса окна 
-		_T("Lab4"), 		// Заголовок окна 
-		WS_OVERLAPPEDWINDOW, 		// Стиль окна 
-		CW_USEDEFAULT,				// x 
-		CW_USEDEFAULT, 				// y	 Размеры окна 
-		550, 				// width 
-		600, 				// Height 
-		HWND_DESKTOP, 				// Дескриптор родительского окна 
-		NULL, 						// Нет меню 
-		This, 						// Дескриптор приложения 
-		NULL); 					// Дополнительной информации нет 
-	HMENU hmenu1;
-	hmenu1 = CreateMenu();
-	HMENU hPopupMenu = CreatePopupMenu();
-	AppendMenu(hmenu1, MF_STRING | MF_POPUP, (UINT)hPopupMenu, L"&Запуск");
-	{
-		AppendMenu(hPopupMenu, MF_STRING, 1000, L"Списка");
-		AppendMenu(hPopupMenu, MF_STRING, 1001, L"Качелей");
-	}
-	HMENU hPopupMenu1 = CreatePopupMenu();
-	AppendMenu(hmenu1, MF_STRING | MF_POPUP, (UINT)hPopupMenu1, L"&Выключение");
-	{
-		AppendMenu(hPopupMenu1, MF_STRING, 1002, L"Списка");
-		AppendMenu(hPopupMenu1, MF_STRING, 1003, L"Качелей");
-	}
-	AppendMenu(hmenu1, MF_STRING, 0, L"&Выход");
-	SetMenu(hWnd, hmenu1);
-	ShowWindow(hWnd, mode);
-	UpdateWindow(hWnd);			// Показать окно
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РіР»РѕР±Р°Р»СЊРЅС‹С… СЃС‚СЂРѕРє
+    LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    LoadStringW(hInstance, IDC_LAB4, szWindowClass, MAX_LOADSTRING);
+    MyRegisterClass(hInstance);
 
-	// Цикл обработки сообщений 
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		TranslateMessage(&msg); 		// Функция трансляции кодов нажатой клавиши 
-		DispatchMessage(&msg); 		// Посылает сообщение функции WndProc() 
-	}
-	return 0;
-}
+    // Р’С‹РїРѕР»РЅРёС‚СЊ РёРЅРёС†РёР°Р»РёР·Р°С†РёСЋ РїСЂРёР»РѕР¶РµРЅРёСЏ:
+    if (!InitInstance (hInstance, nCmdShow))
+    {
+        return FALSE;
+    }
 
-HANDLE hGroupList;
-HANDLE hSwing;
-DWORD WINAPI GroupList(LPVOID t);
-DWORD WINAPI Swing(LPVOID t);
+    HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LAB4));
 
-int a = 0;
-BOOL Prov1 = false;
-BOOL Prov2 = false;
+    MSG msg;
 
+    // Р¦РёРєР» РѕСЃРЅРѕРІРЅРѕРіРѕ СЃРѕРѕР±С‰РµРЅРёСЏ:
+    while (GetMessage(&msg, nullptr, 0, 0))
+    {
+        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
 
-LPWSTR convertStr(LPCSTR pInStr)//преобразованиеLPCSTR в LPWSTR
-{
-	int length = strlen(pInStr);
-	wchar_t* pwstr = new wchar_t[length];
-	int result = MultiByteToWideChar(
-		CP_ACP, MB_PRECOMPOSED, pInStr, length,
-		pwstr, length
-	);
-	pwstr[length] = L'\0';
-	return LPWSTR(pwstr);
-}
-
-std::map<int, int> names = { {1, 11},  {2, 12}, {3, 9}, {4, 12}, {5, 16}, {6, 8}, {7, 15}, {8, 7}, {9, 13}, {10, 13}, {11, 13}, {12, 11}, {13, 9} };
-
-DWORD WINAPI GroupList(LPVOID t)
-{
-	OVERLAPPED olf = { 0 };//Позиция чтения
-	LARGE_INTEGER li = { 0 };
-	li.QuadPart = 1;
-	olf.Offset = li.LowPart;//Младшее слово позиции в файле
-	olf.OffsetHigh = li.HighPart;//Старшее слово
-
-	LPSTR buffer = (CHAR*)calloc(300, sizeof(CHAR));
-	DWORD iNumread = 0;
-
-	DWORD dwCounter, dwTemp;
-	HANDLE hFile = CreateFile(PATH, GENERIC_READ | GENERIC_WRITE, 0, NULL,
-		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-	if (!ReadFile(hFile, buffer, 300, &iNumread, &olf)) {
-		return 1;
-	}
-
-	int i = 1;
-	int k = 0;
-
-	while (Prov1) 
-	{
-		RECT rect;
-		PAINTSTRUCT ps;
-		GetClientRect(HWND(t), &rect);
-		std::cout << "p" << std::endl;
-		LPCWSTR new_buf = convertStr(buffer);
-		HDC hdc = GetDC(HWND(t));
-		SelectObject(hdc, GetStockObject(DC_PEN));
-		SetDCPenColor(hdc, RGB(38, 201, 255));
-		SelectObject(hdc, CreateSolidBrush(RGB(38, 201, 255)));
-		Rectangle(hdc, 50, 50, 400, 305);
-		SetTextColor(hdc, RGB(255,255,255));
-		SetBkMode(hdc, TRANSPARENT);
-		TextOut(hdc, 210, 100, new_buf + k, names[i]);
-		EndPaint(HWND(t), &ps);
-		Sleep(1000);
-		k += names[i];
-		++i;
-		if (i == 13) {
-			i = 1;
-			k = 0;
-		}
-	}
-
-	return 0;
-}
-
-
-DWORD WINAPI Swing(LPVOID t)
-{
-	bool left_side = true;
-
-	while (Prov2) {
-
-		RECT rect;
-		PAINTSTRUCT ps;
-		GetWindowRect(HWND(t), &rect);
-		int width = (int)(rect.right - rect.left);
-		int height = (int)(rect.bottom - rect.top);
-		HDC hdc = GetDC(HWND(t));
-		HBRUSH hBrush;
-		hBrush = CreateHatchBrush(HS_FDIAGONAL, RGB(38, 201, 255));
-
-		if (left_side) {
-			HPEN hPen1;
-			hPen1 = CreatePen(PS_SOLID, 5, RGB(rand() % 255, rand() % 255, rand() % 255));
-			::MoveToEx(hdc, 250, 400, NULL);
-			SelectObject(hdc, hPen1);
-			::LineTo(hdc, 250, 450);
-			::MoveToEx(hdc, 150, 350, NULL);
-			SelectObject(hdc, hPen1);
-			::LineTo(hdc, 350, 450);
-			Sleep(500);
-			SelectObject(hdc, GetStockObject(DC_PEN));
-			SetDCPenColor(hdc, RGB(38, 201, 255));
-			SelectObject(hdc, CreateSolidBrush(RGB(38, 201, 255)));
-			Rectangle(hdc, 110, 470, 360, 340);
-			ReleaseDC(HWND(t), hdc);
-
-			::SelectObject(hdc, (HGDIOBJ)hBrush);
-			::DeleteObject(hBrush);
-			left_side = false;
-
-
-		}
-		else 
-		{
-
-			HPEN hPen2;
-			hPen2 = CreatePen(PS_SOLID, 5, RGB(rand() % 255, rand() % 255, rand() % 255));
-			::MoveToEx(hdc, 250, 400, NULL);
-			SelectObject(hdc, hPen2);
-			::LineTo(hdc, 250, 450);
-			::MoveToEx(hdc, 350, 350, NULL);
-			SelectObject(hdc, hPen2);
-			::LineTo(hdc, 150, 450);
-			Sleep(500);
-			SelectObject(hdc, GetStockObject(DC_PEN));
-			SetDCPenColor(hdc, RGB(38, 201, 255));
-			SelectObject(hdc, CreateSolidBrush(RGB(38, 201, 255)));
-			Rectangle(hdc, 110, 470, 360, 340);
-			ReleaseDC(HWND(t), hdc);
-			left_side = true;
-		}
-	}
-	return 0;
+    return (int) msg.wParam;
 }
 
 
 
-
-
-LRESULT CALLBACK WndProc(HWND hWnd,//Дескриптор окна
-	UINT message,//Код сообщения
-	WPARAM wParam,//Указатели, где хранится информация для сообщения
-	LPARAM lParam)//Указатели, где хранится информация для сообщения
+//
+//  Р¤РЈРќРљР¦РРЇ: MyRegisterClass()
+//
+//  Р¦Р•Р›Р¬: Р РµРіРёСЃС‚СЂРёСЂСѓРµС‚ РєР»Р°СЃСЃ РѕРєРЅР°.
+//
+ATOM MyRegisterClass(HINSTANCE hInstance)
 {
-	switch (message)		 // Обработчик сообщений
-	{
-	case WM_COMMAND:
-	{
-		int wmId = LOWORD(wParam);
-		// Разобрать выбор в меню:
-		switch (wmId)
-		{
-		case 1000:
-		{
-			Prov1 = true;
-			hGroupList = CreateThread(NULL, 0, GroupList, hWnd, 0, NULL);
-			break;
-		}
-		case 1001:
-		{
-			Prov2 = true;
-			hSwing = CreateThread(NULL, 0, Swing, hWnd, 0, NULL);
-			break;
-		}
-		case 1002:
-		{
-			TerminateThread(hGroupList, 0);
-			_endthread;
-			Prov1 = false;
-			break;
-		}
-		case 1003:
-		{
+    WNDCLASSEXW wcex;
 
-			TerminateThread(hSwing, 0);
-			Prov2 = false;
-			break;
+    wcex.cbSize = sizeof(WNDCLASSEX);
 
-		}
-		case 0:
-		{
-			DestroyWindow(hWnd);
-			break;
-		}
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
+    wcex.style          = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc    = WndProc;
+    wcex.cbClsExtra     = 0;
+    wcex.cbWndExtra     = 0;
+    wcex.hInstance      = hInstance;
+    wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LAB4));
+    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hbrBackground  = color_of_window;
+    wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_LAB4);
+    wcex.lpszClassName  = szWindowClass;
+    wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-	}
-	break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break; 			// Завершение программы 
-	default: 			// Обработка сообщения по умолчанию 
-		return DefWindowProc(hWnd, message, wParam, lParam);//Если сообщение никак не обрабатывается
-	}
+    return RegisterClassExW(&wcex);
+}
 
-	return 0;
+//
+//   Р¤РЈРќРљР¦РРЇ: InitInstance(HINSTANCE, int)
+//
+//   Р¦Р•Р›Р¬: РЎРѕС…СЂР°РЅСЏРµС‚ РјР°СЂРєРµСЂ СЌРєР·РµРјРїР»СЏСЂР° Рё СЃРѕР·РґР°РµС‚ РіР»Р°РІРЅРѕРµ РѕРєРЅРѕ
+//
+//   РљРћРњРњР•РќРўРђР РР:
+//
+//        Р’ СЌС‚РѕР№ С„СѓРЅРєС†РёРё РјР°СЂРєРµСЂ СЌРєР·РµРјРїР»СЏСЂР° СЃРѕС…СЂР°РЅСЏРµС‚СЃСЏ РІ РіР»РѕР±Р°Р»СЊРЅРѕР№ РїРµСЂРµРјРµРЅРЅРѕР№, Р° С‚Р°РєР¶Рµ
+//        СЃРѕР·РґР°РµС‚СЃСЏ Рё РІС‹РІРѕРґРёС‚СЃСЏ РіР»Р°РІРЅРѕРµ РѕРєРЅРѕ РїСЂРѕРіСЂР°РјРјС‹.
+//
+HWND hWnd;
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+{
+   hInst = hInstance; // РЎРѕС…СЂР°РЅРёС‚СЊ РјР°СЂРєРµСЂ СЌРєР·РµРјРїР»СЏСЂР° РІ РіР»РѕР±Р°Р»СЊРЅРѕР№ РїРµСЂРµРјРµРЅРЅРѕР№
+
+   srand(time(0));
+   hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+
+   if (!hWnd)
+   {
+      return FALSE;
+   }
+
+   ShowWindow(hWnd, nCmdShow);
+   UpdateWindow(hWnd);
+
+   return TRUE;
+}
+
+//
+//  Р¤РЈРќРљР¦РРЇ: WndProc(HWND, UINT, WPARAM, LPARAM)
+//
+//  Р¦Р•Р›Р¬: РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёСЏ РІ РіР»Р°РІРЅРѕРј РѕРєРЅРµ.
+//
+//  WM_COMMAND  - РѕР±СЂР°Р±РѕС‚Р°С‚СЊ РјРµРЅСЋ РїСЂРёР»РѕР¶РµРЅРёСЏ
+//  WM_PAINT    - РћС‚СЂРёСЃРѕРІРєР° РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°
+//  WM_DESTROY  - РѕС‚РїСЂР°РІРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ Рѕ РІС‹С…РѕРґРµ Рё РІРµСЂРЅСѓС‚СЊСЃСЏ
+//
+//
+
+HANDLE thread_1; // РїРѕС‚РѕРє С‡С‚РµРЅРёСЏ РёР· С„Р°Р№Р»Р°
+HANDLE thread_2; // РїРѕС‚РѕРє РґР»СЏ РґРёР°РіСЂР°РјРјС‹
+
+bool t1 = true;
+bool t2 = true;
+
+std::vector<int> v;
+DWORD WINAPI thread1(LPVOID t) {
+    InvalidateRect(hWnd, NULL, TRUE);
+    std::ifstream openf("DATA.txt");
+    int counter = 0;
+    size_t i = 0;
+    RECT rect;
+    GetClientRect(hWnd, &rect);
+    HDC hdc = GetDC(hWnd);
+    SetTextColor(hdc, RGB(255, 255, 255));
+    SetBkColor(hdc, RGB(R, G, B));
+    while (!openf.eof())
+    {
+        while (!openf.eof() && t1 == true) {
+            int a;
+            openf >> a;
+            v.push_back(a);
+            counter++;
+            if ((counter % 2) == 0)
+            {
+                break;
+            }
+        }
+
+            for (i; i < v.size(); i++) {
+                WCHAR m[10];
+                wsprintf(m, TEXT("%d"), v[i]);
+                TextOut(hdc, rect.left + 50, rect.top / 2 + 10 + i * 20, (LPWSTR)m, 3);
+            }
+        Sleep(2000);
+    }
+    return 0;
+}
+
+int red = 0, g = 0, b = 0;
+
+
+//if (i == 5)
+//{
+//    Sleep(12000);
+//}
+
+DWORD WINAPI thread2(LPVOID t) {
+    HDC hdc = GetDC(hWnd);
+    float x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+    while (t2) {
+        for (size_t i = 0; i < v.size(); i++) {
+            red = 255;
+            g = 255;
+            b = 255;
+
+            HBRUSH brush = CreateSolidBrush(RGB(red, g, b));
+            SelectObject(hdc, brush);
+
+            RECT rect;
+            GetClientRect(hWnd, &rect);
+            Rectangle(hdc, rect.right - 10, 8 + i * 20, rect.right - v[i] - 0, 20 + i * 20);
+            //Rectangle(hdc, rect.right-20, 10 + i*20, rect.right-v[i] - 20, 20 + i * 20);
+
+            DeleteObject(brush);
+        }
+        Sleep(10000);
+    }
+    return 0;
+}
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_COMMAND:
+        {
+            int wmId = LOWORD(wParam);
+            // Р Р°Р·РѕР±СЂР°С‚СЊ РІС‹Р±РѕСЂ РІ РјРµРЅСЋ:
+            switch (wmId)
+            {
+            case IDM_ABOUT:
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+                break;
+            case IDM_EXIT:
+                DestroyWindow(hWnd);
+                break;
+            case ID_THREAD1ON:
+                t1 = true;
+                thread_1 = CreateThread(NULL, 0, &thread1, NULL, 0, NULL);
+                break;
+            case ID_THREAD1OFF:
+                v.clear();
+                TerminateThread(thread_1, NULL);
+                TerminateThread(thread_2, NULL);
+                t2 = false;
+                t1 = false;
+                InvalidateRect(hWnd, NULL, TRUE);
+                break;
+            case ID_THREAD2ON:
+                t2 = true;
+                thread_2 = CreateThread(NULL, 0, &thread2, NULL, 0, NULL);
+                break;
+            case ID_THREAD2OFF:
+                TerminateThread(thread_2, NULL);
+                t2 = false;
+                InvalidateRect(hWnd, NULL, TRUE);
+                break;
+            default:
+                return DefWindowProc(hWnd, message, wParam, lParam);
+            }
+        }
+        break;
+    case WM_PAINT:
+        {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hWnd, &ps);
+            // TODO: Р”РѕР±Р°РІСЊС‚Рµ СЃСЋРґР° Р»СЋР±РѕР№ РєРѕРґ РїСЂРѕСЂРёСЃРѕРІРєРё, РёСЃРїРѕР»СЊР·СѓСЋС‰РёР№ HDC...
+            EndPaint(hWnd, &ps);
+        }
+        break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+    return 0;
+}
+
+// РћР±СЂР°Р±РѕС‚С‡РёРє СЃРѕРѕР±С‰РµРЅРёР№ РґР»СЏ РѕРєРЅР° "Рћ РїСЂРѕРіСЂР°РјРјРµ".
+INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        {
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+        }
+        break;
+    }
+    return (INT_PTR)FALSE;
 }

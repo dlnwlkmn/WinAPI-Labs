@@ -70,7 +70,7 @@ int WINAPI _tWinMain(HINSTANCE This,		 // Дескриптор текущего приложения
 
 bool Left = false, Right = true;
 int time = 0, counter = 0;
-bool timerr = false;
+bool timerr = false, drawText = true, drawEllipse = true;
 wchar_t text[255];
 wchar_t text1[255];
 
@@ -92,22 +92,39 @@ LRESULT CALLBACK WndProc(HWND hWnd,//Дескриптор окна
 	{
 		PAINTSTRUCT ps;// содержит информации для приложения. Эта информация может быть использована для окраски клиентской области окна, которым владеет приложение.
 		HDC hdc = BeginPaint(hWnd, &ps);//Определяет контекст устройства дисплея, используемый для рисования
-
-		//Функция извлекает дескриптор одного из предопределенных перьев, кистей, шрифтов или палитр.
-		SelectObject(hdc, GetStockObject(DC_PEN));
-		//Цвет пера
-		SetDCPenColor(hdc, RGB(38, 201, 255));
-		//создает логическую кисть, которая имеет заданный сплошной тон.
-		SelectObject(hdc, CreateSolidBrush(RGB(41, 255, 201)));
-		Ellipse(hdc, 150, 200, 450, 250);
-
-		wsprintf(text, TEXT("Савельев Алексей ИУ5-44Б ЛР1 WinAPI"));
-		TextOut(hdc, 160, 210, text, 35);
-
-		if (counter == 5)
+		if (drawEllipse == true)
 		{
-			TextOut(hdc, 100, 100, _TEXT("%d", counter), 20);
+			//Функция извлекает дескриптор одного из предопределенных перьев, кистей, шрифтов или палитр.
+			SelectObject(hdc, GetStockObject(DC_PEN));
+			//Цвет пера
+			SetDCPenColor(hdc, RGB(41, 255, 201));
+
+			//создает логическую кисть, которая имеет заданный сплошной тон.
+			SelectObject(hdc, CreateSolidBrush(RGB(41, 255, 201)));
+			Ellipse(hdc, 150, 200, 450, 250);
+		}
+		if (drawText == true)
+		{
+			wsprintf(text, TEXT("Савельев Алексей ИУ5-44Б ЛР1 WinAPI"));
+			SetBkMode(hdc, TRANSPARENT); //чтобы было все красиво
+			SetTextColor(hdc, RGB(0, 0, 255)); //сам цвет текста
+			TextOut(hdc, 162, 217, text, 35);
+
+		}
+
+		EndPaint(hWnd, &ps);
+
+		if (counter == 4)
+		{
+			drawText = false;
 			timerr = false;
+			//InvalidateRect(hWnd, NULL, false);
+		}
+		if (counter == 10)
+		{
+			drawEllipse = false;
+			timerr = false;
+			//InvalidateRect(hWnd, NULL, false);
 		}
 
 		if (Left) {
@@ -117,7 +134,7 @@ LRESULT CALLBACK WndProc(HWND hWnd,//Дескриптор окна
 		if (Right) {
 			Right = false;
 		}
-		EndPaint(hWnd, &ps);
+		
 	}
 	break;
 	case WM_LBUTTONDOWN:
@@ -130,6 +147,10 @@ LRESULT CALLBACK WndProc(HWND hWnd,//Дескриптор окна
 	case WM_RBUTTONDOWN:
 	{
 		Right = true;
+		drawEllipse = true;
+		drawText = true;
+		KillTimer(hWnd, ID_TIMER1);
+		counter = 0;
 		InvalidateRect(hWnd, NULL, false);
 	}
 	break;

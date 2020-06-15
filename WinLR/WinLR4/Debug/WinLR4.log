@@ -1,6 +1,0 @@
-﻿  Source4.cpp
-c:\users\lesh7\onedrive\рабочий стол\винапи\winlr1\winlr4\source4.cpp(123): warning C4101: 'dwTemp' : unreferenced local variable
-c:\users\lesh7\onedrive\рабочий стол\винапи\winlr1\winlr4\source4.cpp(123): warning C4101: 'dwCounter' : unreferenced local variable
-c:\users\lesh7\onedrive\рабочий стол\винапи\winlr1\winlr4\source4.cpp(170): warning C4101: 'ps' : unreferenced local variable
-c:\users\lesh7\onedrive\рабочий стол\винапи\winlr1\winlr4\source4.cpp(255): warning C4551: function call missing argument list
-  WinLR4.vcxproj -> C:\Users\lesh7\OneDrive\Рабочий стол\ВИНАПИ\WinLR1\Debug\WinLR4.exe

@@ -3,7 +3,7 @@
 #include <vector>
 
 const wchar_t* szWindowClass = L"MyWindow";
-
+int hardness = 1;
 HWND g_hwnd;
 
 class Cell {
@@ -81,7 +81,7 @@ public:
 			}
 		}
 
-		for (int i = 0; i < 1.3*w; i++) // Минирование поля
+		for (int i = 0; i < hardness*w; i++) // Минирование поля
 		{
 			int index = rand() % n;
 			index = rand() % n;
@@ -182,6 +182,48 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
+	case WM_COMMAND:
+	{
+		int wmId = LOWORD(wParam);
+		// Разобрать выбор в меню:
+		switch (wmId)
+		{
+		case 0:
+			MessageBox(hWnd, TEXT("«Сапёр» (англ. Minesweeper) — компьютерная игра-головоломка. \nПлоское или объёмное игровое поле разделено на смежные ячейки (квадраты), некоторые из которых «заминированы». Целью игры является открытие всех ячеек, не содержащих мины.Игрок открывает ячейки, стараясь не открыть ячейку с миной. Открыв ячейку с миной, он проигрывает."), TEXT("Об Игре"), 0);
+			break;
+		case 1000:
+			g_grid.CreateGrid(20, 20);
+			InvalidateRect(hWnd, nullptr, false);
+			return 0;
+		case 1001:
+			DestroyWindow(hWnd);
+			break;
+		case 1002:
+			hardness = 1;
+			g_grid.CreateGrid(20, 20);
+			InvalidateRect(hWnd, nullptr, false);
+			return 0;
+		case 1003:
+			hardness = 2;
+			g_grid.CreateGrid(20, 20);
+			InvalidateRect(hWnd, nullptr, false);
+			return 0;
+		case 1004:
+			hardness = 3;
+			g_grid.CreateGrid(20, 20);
+			InvalidateRect(hWnd, nullptr, false);
+			return 0;
+		case 1005:
+			hardness = 6;
+			g_grid.CreateGrid(20, 20);
+			InvalidateRect(hWnd, nullptr, false);
+			return 0;
+
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		break;
+	}
 	case WM_PAINT: {
 		PAINTSTRUCT ps;
 		BeginPaint(hWnd, &ps);
@@ -239,13 +281,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		szWindowClass,
 		L"Игра 'Сапер'",
 		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, 376, 398,
+		CW_USEDEFAULT, CW_USEDEFAULT, 376, 418,
 		nullptr,
 		nullptr,
 		hInstance,
 		0);
 
 	g_hwnd = hwnd;
+
+	HMENU hmenu1;
+	hmenu1 = CreateMenu();
+	HMENU hPopupMenu1 = CreatePopupMenu();
+	HMENU hPopupMenu2 = CreatePopupMenu();
+	AppendMenu(hmenu1, MF_STRING | MF_POPUP, (UINT)hPopupMenu1, L"&Игра");
+	{
+		AppendMenu(hPopupMenu1, MF_STRING, 1000, L"Заного");
+		AppendMenu(hPopupMenu1, MF_STRING, 1001, L"Выход");
+	}
+	AppendMenu(hmenu1, MF_STRING | MF_POPUP, (UINT)hPopupMenu2, L"&Режим");
+	{
+		AppendMenu(hPopupMenu2, MF_STRING, 1002, L"Простой");
+		AppendMenu(hPopupMenu2, MF_STRING, 1003, L"Средний");
+		AppendMenu(hPopupMenu2, MF_STRING, 1004, L"Сложный");
+		AppendMenu(hPopupMenu2, MF_STRING, 1005, L"Монстер");
+	}
+	AppendMenu(hmenu1, MF_STRING, 0, L"&Об Игре");
+
+	SetMenu(hwnd, hmenu1);
 
 	ShowWindow(hwnd, SW_NORMAL);
 	UpdateWindow(hwnd);
