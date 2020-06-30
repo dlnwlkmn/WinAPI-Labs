@@ -147,6 +147,7 @@ DWORD WINAPI thread1(LPVOID t) {
     int counter = 0;
     size_t i = 0;
     RECT rect;
+    WCHAR m[10];
     GetClientRect(hWnd, &rect);
     HDC hdc = GetDC(hWnd);
     SetTextColor(hdc, RGB(255, 255, 255));
@@ -165,7 +166,6 @@ DWORD WINAPI thread1(LPVOID t) {
         }
 
             for (i; i < v.size(); i++) {
-                WCHAR m[10];
                 wsprintf(m, TEXT("%d"), v[i]);
                 TextOut(hdc, rect.left + 50, rect.top / 2 + 10 + i * 20, (LPWSTR)m, 3);
             }
@@ -185,23 +185,41 @@ int red = 0, g = 0, b = 0;
 DWORD WINAPI thread2(LPVOID t) {
     HDC hdc = GetDC(hWnd);
     float x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+    size_t i;
     while (t2) {
-        for (size_t i = 0; i < v.size(); i++) {
-            red = 255;
-            g = 255;
-            b = 255;
+        red = 255;
+        g = 255;
+        b = 255;
 
-            HBRUSH brush = CreateSolidBrush(RGB(red, g, b));
-            SelectObject(hdc, brush);
+        HBRUSH brush = CreateSolidBrush(RGB(red, g, b));
+        SelectObject(hdc, brush);
 
+        for (i = v.size() - 2; i < v.size(); i++) {
+            //Функция извлекает дескриптор одного из предопределенных перьев, кистей, шрифтов или палитр.
+            SelectObject(hdc, GetStockObject(DC_PEN));
+            //Цвет пера
+            SetDCPenColor(hdc, RGB(100, 100, 100));
             RECT rect;
             GetClientRect(hWnd, &rect);
-            Rectangle(hdc, rect.right - 10, 8 + i * 20, rect.right - v[i] - 0, 20 + i * 20);
+            Rectangle(hdc, rect.right - 10,  8, rect.right - v[i], 20);
+            Rectangle(hdc, rect.right - 10, 8 + 20, rect.right - v[i+1], 20 + 20);
+            //Rectangle(hdc, rect.right - 10, 8 + i * 20, rect.right - v[i] - 0, 20 + i * 20);
             //Rectangle(hdc, rect.right-20, 10 + i*20, rect.right-v[i] - 20, 20 + i * 20);
-
-            DeleteObject(brush);
+            break;
         }
-        Sleep(10000);
+        Sleep(500);
+        brush = CreateSolidBrush(RGB(100, 100, 100));
+        //Функция извлекает дескриптор одного из предопределенных перьев, кистей, шрифтов или палитр.
+        SelectObject(hdc, GetStockObject(DC_PEN));
+        //Цвет пера
+        SetDCPenColor(hdc, RGB(100, 100, 100));
+        SelectObject(hdc, brush);
+        RECT rect;
+        GetClientRect(hWnd, &rect);
+        Rectangle(hdc, rect.right - 10, 8, rect.right - v[i], 20);
+        Rectangle(hdc, rect.right - 10, 8 + 20, rect.right - v[i + 1], 20 + 20);
+
+        DeleteObject(brush);
     }
     return 0;
 }

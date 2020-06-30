@@ -3,7 +3,7 @@
 #include <vector>
 
 const wchar_t* szWindowClass = L"MyWindow";
-int hardness = 1;
+int hardness = 1; // —ложность по умолчанию проста€
 HWND g_hwnd;
 
 class Cell {
@@ -189,7 +189,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		switch (wmId)
 		{
 		case 0:
-			MessageBox(hWnd, TEXT("Ђ—апЄрї (англ. Minesweeper) Ч компьютерна€ игра-головоломка. \nѕлоское или объЄмное игровое поле разделено на смежные €чейки (квадраты), некоторые из которых Ђзаминированыї. ÷елью игры €вл€етс€ открытие всех €чеек, не содержащих мины.»грок открывает €чейки, стара€сь не открыть €чейку с миной. ќткрыв €чейку с миной, он проигрывает."), TEXT("ќб »гре"), 0);
+			MessageBox(hWnd, TEXT("Ђ—апЄрї (англ. Minesweeper) Ч компьютерна€ игра-головоломка. \nѕлоское или объЄмное игровое поле разделено на смежные €чейки (квадраты), некоторые из которых Ђзаминированыї. ÷елью игры €вл€етс€ открытие всех €чеек, не содержащих мины.»грок открывает €чейки, стара€сь не открыть €чейку с миной. ќткрыв €чейку с миной, он проигрывает.\n—ложность по умочанию: ѕроста€"), TEXT("ќб »гре"), 0);
 			break;
 		case 1000:
 			g_grid.CreateGrid(20, 20);
@@ -288,7 +288,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		0);
 
 	g_hwnd = hwnd;
-
+	// ƒобавл€ем меню
 	HMENU hmenu1;
 	hmenu1 = CreateMenu();
 	HMENU hPopupMenu1 = CreatePopupMenu();

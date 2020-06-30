@@ -94,8 +94,7 @@ LRESULT CALLBACK WndProc(HWND hWnd,//Дескриптор окна
 		HDC hdc = BeginPaint(hWnd, &ps);//Определяет контекст устройства дисплея, используемый для рисования
 		if (drawEllipse == true)
 		{
-			//Функция извлекает дескриптор одного из предопределенных перьев, кистей, шрифтов или палитр.
-			SelectObject(hdc, GetStockObject(DC_PEN));
+			
 			//Цвет пера
 			SetDCPenColor(hdc, RGB(41, 255, 201));
 
